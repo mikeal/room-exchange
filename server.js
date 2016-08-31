@@ -14,7 +14,7 @@ function createRedisGet (client, limit, prefix = 'room:') {
     let key = `${prefix}${room}`
     let multi = client.multi()
     let value = new Buffer(pub, 'hex')
-    multi.lrange(0, limit - 1, (err, keys) => {
+    multi.lrange(key, 0, limit - 1, (err, keys) => {
       if (err) return cb(err)
       cb(null, keys.map(k => k.toString('hex')))
     })
