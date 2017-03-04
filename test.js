@@ -1,7 +1,7 @@
 const test = require('tape')
 const http = require('http')
 const corsify = require('corsify')
-const crypto = require('crypto')
+const sodi = require('sodi')
 const serverDestroy = require('server-destroy')
 const handler = require('./server')()
 const getRoom = require('./')
@@ -14,14 +14,6 @@ const cors = corsify({
 
 const app = http.createServer(cors(handler))
 
-function generate () {
-  let key = crypto.createECDH('secp521r1')
-  key.generateKeys()
-  let pub = key.getPublicKey().toString('hex')
-  let priv = key.getPrivateKey().toString('hex')
-  return {pub, priv}
-}
-
 test('setup server', t => {
   t.plan(1)
   serverDestroy(app)
@@ -30,16 +22,16 @@ test('setup server', t => {
 
 test('basic signal exchange', t => {
   t.plan(3)
-  let user1 = generate()
-  let user2 = generate()
+  let user1 = sodi.generate()
+  let user2 = sodi.generate()
   let server = 'http://localhost:6688'
-  getRoom(server, 'testroom', user1.priv, user1.pub, (err, data) => {
+  getRoom(server, 'testroom', user1, (err, data) => {
     if (err) throw err
     t.equal(data.keys.length, 0)
-    getRoom(server, 'testroom', user2.priv, user2.pub, (err, data) => {
+    getRoom(server, 'testroom', user2, (err, data) => {
       if (err) throw err
       t.equal(data.keys.length, 1)
-      t.equal(data.keys[0], user1.pub)
+      t.equal(data.keys[0], user1.publicKey.toString('hex'))
     })
   })
 })

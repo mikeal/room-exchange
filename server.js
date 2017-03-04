@@ -1,8 +1,7 @@
 const response = require('response')
 const once = require('once')
-const crypto = require('crypto')
 const body = require('body/json')
-const ec_pem = require('./ec-pem.js')
+const sodi = require('sodi')
 const rooms = {}
 
 function createRedisGet (client, limit, prefix = 'room:') {
@@ -35,16 +34,6 @@ function memoryGet (room, pub, cb) {
   if (rooms[room].length > 100) rooms[room].shift()
 }
 
-function verify (value, publicKey, signature) {
-  if (!Buffer.isBuffer(publicKey)) publicKey = new Buffer(publicKey, 'hex')
-  if (!Buffer.isBuffer(signature)) signature = new Buffer(signature, 'hex')
-  if (typeof value !== 'string') value = JSON.stringify(value)
-  var c = 'secp521r1'
-  var pem = ec_pem({public_key: publicKey, curve: c}, c).encodePublicKey()
-  var algo = 'ecdsa-with-SHA1'
-  return crypto.createVerify(algo).update(value).verify(pem, signature)
-}
-
 function createHandler (get) {
   if (!get) get = memoryGet
   function _ret (req, res) {
@@ -60,7 +49,7 @@ function createHandler (get) {
       if (!data.from) return response.error(new Error('missing from'))
       if (!data.value) return response.error(new Error('missing value'))
       if (!data.signature) return response.error(new Error('missing signature'))
-      if (!verify(data.value, data.from, data.signature)) {
+      if (!sodi.verify(data.value, data.signature, data.from)) {
         return response.error(new Error('Signature validation failed.'))
       }
       get(data.room, data.from, (err, keys) => {
