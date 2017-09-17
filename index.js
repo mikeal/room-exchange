@@ -1,5 +1,4 @@
-const defaultHeaders = {'User-Agent': 'room-exchange-1.0.0'}
-const request = require('request').defaults({headers: defaultHeaders})
+const request = require('request')
 const sodi = require('sodi')
 const encryption = require('sodium-encryption')
 const defaultHost = 'https://roomexchange-1.now.sh/'

@@ -16,6 +16,14 @@
     "request": "^2.74.0",
     "response": "^0.18.0",
     "sodi": "^0.3.0",
-    "sodium-encryption": "^1.2.3"
+    "sodium-encryption": "^1.2.3",
+    "xhr": "^2.4.0"
+  },
+  "browser": {
+    "request": "xhr"
+  },
+  "devDependencies": {
+    "server-destroy": "^1.0.1",
+    "tape": "^4.8.0"
   }
 }
